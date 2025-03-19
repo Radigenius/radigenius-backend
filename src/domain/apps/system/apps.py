@@ -6,6 +6,6 @@ class SystemConfig(AppConfig):
     name = "domain.apps.system"
     verbose_name = "system"
 
-    # def ready(self):
-    #     import infrastructure.signals.system.signals
-    #     import presentation.admin.system.admin
+    def ready(self):
+        import infrastructure.signals.system.signals
+        import presentation.admin.system
