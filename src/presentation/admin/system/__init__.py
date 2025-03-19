@@ -1,1 +1,1 @@
-from .attachment import *
+from .attachment_admin import *
