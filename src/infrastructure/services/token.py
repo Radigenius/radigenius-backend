@@ -4,7 +4,7 @@ from django.db.models import QuerySet, Q
 from rest_framework_simplejwt.tokens import RefreshToken
 import jwt
 
-from domain.apps.identity.models import User, Profile
+from domain.apps.identity.models import User
 from application.interfaces.services.token import ITokenService
 from infrastructure.exceptions.exceptions import InvalidTokenException
 

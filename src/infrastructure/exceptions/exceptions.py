@@ -108,11 +108,11 @@ class SMSException(BaseCustomException):
         super().__init__(message, status.HTTP_502_BAD_GATEWAY, key=key, errors=errors)
 
 
-class PasswordOrOTPNotValidException(BaseCustomException):
+class PasswordNotValidException(BaseCustomException):
     def __init__(
         self,
-        message="Password or OTP is not valid",
-        key="password_or_otp_not_valid",
+        message="Password is not valid",
+        key="password_not_valid",
         errors=None,
     ):
         super().__init__(message, status.HTTP_400_BAD_REQUEST, key=key, errors=errors)

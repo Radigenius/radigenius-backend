@@ -63,8 +63,6 @@ class CurrentUserOrAdmin(IsAuthenticated):
         user_object = None
         if hasattr(obj, "user"):
             user_object = obj.user
-        elif hasattr(obj, "profile") and hasattr(obj.profile, "user"):
-            user_object = obj.profile.user
 
         return (
             user.is_superuser

@@ -47,7 +47,7 @@ class UserCreationForm(CustomModelForm):
 
 
 class UserChangeForm(CustomModelForm):
-    username = CharField(required=False)
+    email = CharField(required=False)
     password = ReadOnlyPasswordHashField(
         label=_("Password"),
         help_text=_(
@@ -111,7 +111,7 @@ class CustomUserAdmin(UserAdmin, CustomModelAdmin):
     add_fieldsets = (
         (
             "Authentication",
-            {"fields": ("username", "phone_number", "password1", "password2")},
+            {"fields": ("email", "password1", "password2")},
         ),
         (
             "Permission",
@@ -130,8 +130,7 @@ class CustomUserAdmin(UserAdmin, CustomModelAdmin):
 
     def save_form(self, request, form, change):
         if not change:
-            username = form.cleaned_data["username"]
-            phone_number = form.cleaned_data["phone_number"]
+            email = form.cleaned_data["email"]
             password = form.cleaned_data["password1"]
             additional = {
                 "is_staff": form.cleaned_data["is_staff"],
@@ -143,16 +142,14 @@ class CustomUserAdmin(UserAdmin, CustomModelAdmin):
 
             if additional["is_superuser"]:
                 form.instance = self.model.super_users.create(
-                    username=username,
-                    phone_number=phone_number,
+                    email=email,
                     password=password,
                     **additional,
                 )
 
             else:
                 form.instance = self.model.objects.create(
-                    username=username,
-                    phone_number=phone_number,
+                    email=email,
                     password=password,
                     **additional,
                 )

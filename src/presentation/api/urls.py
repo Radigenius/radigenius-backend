@@ -29,26 +29,31 @@ from presentation.controllers.sample import SampleViewSet
 # from presentation.controllers.security import HoneypotLoginView
 
 BASENAME = "api"
-API_SCHEMA_PREFIX = "radigenius-api-schema"
 
 urlpatterns = [
+    path(f"{BASENAME}/v1.0/identity/", include("presentation.api.identity.urls")),
+    path(
+        f"{BASENAME}/v1.0/authentication/",
+        include("presentation.api.authentication.urls"),
+    ),
+    # path(f"{BASENAME}/v1.0/", include("presentation.api.v1.urls")),
 ]
 
 development_urls = [
     path("admin/", admin.site.urls),
     path("test/", SampleViewSet.as_view({"get": "retrieve"}, name="test")),
     path(
-        f"{BASENAME}/{API_SCHEMA_PREFIX}/",
+        f"{BASENAME}/schema/",
         SpectacularAPIView.as_view(),
         name="schema",
     ),
     path(
-        f"{BASENAME}/{API_SCHEMA_PREFIX}/swagger/",
+        f"{BASENAME}/swagger/",
         SpectacularSwaggerView.as_view(url_name="schema"),
         name="swagger-ui",
     ),
     path(
-        f"{BASENAME}/{API_SCHEMA_PREFIX}/redoc/",
+        f"{BASENAME}/redoc/",
         SpectacularRedocView.as_view(url_name="schema"),
         name="redoc",
     ),

@@ -21,7 +21,6 @@ class UserModelSerializer(ModelSerializer):
         model = User
         fields = [
             "id",
-            "username",
             "email",
             "date_joined",
             "is_active",
@@ -35,7 +34,6 @@ class UserModelSerializer(ModelSerializer):
         ]
         read_only_fields = [
             "id",
-            "username",
             "date_joined",
             "is_active",
             "is_verified",
@@ -51,7 +49,7 @@ class UserRegisterSerializer(EmailSerializer):
     password = CharField(required=True)
 
     class Meta:
-        validators = EmailSerializer.Meta.validators + [
+        validators = [
             PasswordValidator(field_name="password")
         ]
 
@@ -60,7 +58,7 @@ class UserResetPasswordSerializer(EmailSerializer):
     password = CharField()
 
     class Meta:
-        validators = EmailSerializer.Meta.validators + [
+        validators =  [
             PasswordValidator(field_name="password")
         ]
 

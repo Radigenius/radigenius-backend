@@ -1,10 +1,10 @@
 from .user import (
     UserModelSerializer,
-    UserUpdateSerializer,
     UserRegisterSerializer,
     UserResetPasswordSerializer,
     UserChangePasswordSerializer,
-    OTPVerifySerializer,
+    # OTPVerifySerializer,
+    EmailSerializer,
 )
 from .user_id import UserIdSerializer
 from .token import TokenObtainPairSerializer, TokenRefreshSerializer
