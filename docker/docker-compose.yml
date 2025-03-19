@@ -1,0 +1,102 @@
+name: radigenius-backend
+services:
+
+  # redis:
+  #   container_name: radigenius-redis
+  #   image: redis
+  #   restart: always
+  #   ports:
+  #     - "6379:6379"
+  #   command: redis-server --save 60 1 --loglevel warning
+
+  # seq:
+  #   image: datalust/seq:latest
+  #   container_name: radigenius-seq
+  #   restart: always
+  #   ports:
+  #     - "5341:80"
+  #   environment:
+  #     - ACCEPT_EULA=Y
+  #     - SEQ_LICENSE_KEY=your-license-key-here
+  #   volumes:
+  #     - seq-data:/data
+
+  db:
+    container_name: radigenius-db
+    image: postgres:alpine
+    restart: always
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    env_file:
+      - ../envs/dev/db/.env
+    ports:
+      - ${POSTGRES_PORT:-5432}:${POSTGRES_PORT:-5432}
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB" ]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  backend:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile-dev
+    container_name: radigenius-backend
+    image: radigenius-backend
+    restart: always
+    command: sh -c "python3 manage.py makemigrations --noinput && python3 manage.py migrate --noinput && python3 manage.py init && python3 manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - ../src:/app
+    depends_on:
+      db:
+        condition: service_healthy
+      # seq:
+      #   condition: service_started
+      # redis:
+      #   condition: service_started
+    ports:
+      - "8000:8000"
+    env_file:
+      - ../envs/dev/backend/.env
+    # worker:
+    #   image: radigenius-backend
+    #   container_name: radigenius-worker
+    #   command: celery -A infrastructure.celery.celery:app worker --loglevel=info
+    #   restart: always
+    #   volumes:
+    #     - ../src:/app
+    #   env_file:
+    #     - ../envs/dev/backend/.env
+    #   depends_on:
+    #     - backend
+
+    # beat:
+    #   image: radigenius-backend
+    #   container_name: radigenius-beat
+    #   command: celery -A infrastructure.celery.celery:app beat --loglevel=info
+    #   restart: always
+    #   volumes:
+    #   - ../src:/app
+    # env_file:
+    #   - ../envs/dev/backend/.env
+    # depends_on:
+    #   - worker
+
+
+    # locust:
+    #   image: locustio/locust
+    #   ports:
+    #     - "8089:8089"
+    #   volumes:
+    #     - ../src/infrastructure/locust:/mnt/locust
+    #   command: -f /mnt/locust/locustfile.py --master -H http://backend:8000
+
+    # locustworker:
+    #   image: locustio/locust
+    #   volumes:
+    #     - ../src/infrastructure/locust:/mnt/locust
+    #   command: -f /mnt/locust/locustfile.py --worker --master-host locust
+
+volumes:
+  seq-data:
+  postgres_data:
