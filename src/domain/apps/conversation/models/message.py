@@ -12,7 +12,6 @@ from domain.apps.conversation.managers import MessageManager
 User = get_user_model()
 
 class Message(BaseModel):
-    content = models.TextField(blank=True, null=True)
     attachments = GenericRelation("system.Attachment")
     content = models.TextField(blank=True, null=True)
     parent = models.ForeignKey("self", null=True, blank=True, on_delete=models.SET_NULL)

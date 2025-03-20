@@ -36,7 +36,7 @@ urlpatterns = [
         f"{BASENAME}/v1.0/authentication/",
         include("presentation.api.authentication.urls"),
     ),
-    # path(f"{BASENAME}/v1.0/", include("presentation.api.v1.urls")),
+    path(f"{BASENAME}/v1.0/", include("presentation.api.v1.urls")),
 ]
 
 development_urls = [
