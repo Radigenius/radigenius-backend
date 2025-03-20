@@ -13,7 +13,7 @@ class MessageHandler(BaseHandler):
     def create(self, data):
         user = self.request.user
         attachment_ids = data.pop("attachment_ids", [])
-        
+
         message = Message.objects.create_for_user(user, **data)
         
         # Link attachments to the message if any provided

@@ -32,7 +32,14 @@ class ChatHandler(BaseHandler):
             return "New Conversation"
         
         return "Model Generated Title"
+    
+    def send_message(self, chat_id, message):
 
+        chat = self.model.objects.get_or_not_found_exception(id=chat_id)
+        message_handler = MessageHandler(self.view, self.request)        
+        message_entity = message_handler.create({**message, "chat": chat})
+
+        return message_entity
 
     def get_list_for_current_user(self):
         return self.model.objects.filter(user_id=self.request.user.id)

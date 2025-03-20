@@ -18,3 +18,13 @@ class ChatCommand(BaseCommand):
         serializer = self.view.get_output_serializer(chat)
 
         return Response(data={"data": serializer.data}, status=status.HTTP_201_CREATED)
+    
+
+    def send_message(self, chat_id, message):
+        validated_data = self.validate(message)
+        
+        handler = self.handler(self.view, self.request)
+        entity = handler.send_message(chat_id, validated_data)
+        serializer = self.view.get_output_serializer(entity)
+
+        return Response(data={"data": serializer.data}, status=status.HTTP_201_CREATED)
