@@ -2,8 +2,8 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Run Django",
-      "type": "python",
+      "name": "Debug Django",
+      "type": "debugpy",
       "request": "attach",
       "pathMappings": [
         {
@@ -11,8 +11,10 @@
           "remoteRoot": "/app"
         }
       ],
-      "port": 5678,
-      "host": "127.0.0.1"
+      "connect": {
+        "host": "127.0.0.1",
+        "port": 5680
+      },
     }
   ]
 }

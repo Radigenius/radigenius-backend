@@ -56,6 +56,7 @@ services:
       #   condition: service_started
     ports:
       - "8000:8000"
+      - "5680:5680"
     env_file:
       - ../envs/dev/backend/.env
     # worker:

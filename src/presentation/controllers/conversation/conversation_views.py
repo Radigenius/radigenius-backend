@@ -13,7 +13,7 @@ from presentation.controllers.base import CustomGenericViewSet
 from infrastructure.serializers.conversation import ChatModelSerializer, ChatSmallModelSerializer , ChatCreateSerializer
 
 
-class ConversationModelViewSet(CustomGenericViewSet):
+class ConversationGenericViewSet(CustomGenericViewSet):
     throttle_scope = ThrottleScopes.High.value
     input_serializer_class = ChatCreateSerializer
     output_serializer_class = ChatSmallModelSerializer

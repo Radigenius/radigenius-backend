@@ -15,10 +15,11 @@ class AttachmentsManager(BaseManager):
 
     def create_attachment(self, file, **kwargs):
         instance = self.model(**kwargs)
+        file_name = file.name.split(".")[0]
         if file:
             instance.file.save(file.name, file, save=False)
             instance.file_type = self.determine_file_type(instance.file)
-            self.process_file(instance)
+            self.process_file(instance, file_name)
         return instance
 
     @staticmethod
@@ -28,18 +29,18 @@ class AttachmentsManager(BaseManager):
 
         if mime_type.startswith("image/"):
             return AttachmentFileTypes.IMAGE
-        elif mime_type.startswith("video/"):
-            return AttachmentFileTypes.VIDEO
-        elif mime_type == "application/pdf":
-            return AttachmentFileTypes.PDF
+        # elif mime_type.startswith("video/"):
+        #     return AttachmentFileTypes.VIDEO
+        # elif mime_type == "application/pdf":
+        #     return AttachmentFileTypes.PDF
         else:
             raise UnsupportedFileTypeException(file_type=mime_type)
 
-    def process_file(self, instance):
+    def process_file(self, instance, file_name):
         processors = {
             AttachmentFileTypes.IMAGE: self._process_image,
-            AttachmentFileTypes.VIDEO: self._process_video,
-            AttachmentFileTypes.PDF: self._process_pdf,
+            # AttachmentFileTypes.VIDEO: self._process_video,
+            # AttachmentFileTypes.PDF: self._process_pdf,
         }
 
         processor = processors.get(instance.file_type, None)
@@ -47,12 +48,12 @@ class AttachmentsManager(BaseManager):
         if not processor:
             raise UnsupportedFileTypeException(file_type=instance.file_type)
 
-        instance = processor(instance)
+        instance = processor(instance, file_name)
         instance.file.seek(0)
         return instance
 
     @staticmethod
-    def _process_image(instance):
+    def _process_image(instance, file_name):
         # Open the original image
         img = PILImage.open(instance.file)
 
@@ -72,7 +73,7 @@ class AttachmentsManager(BaseManager):
             save=False
         )  # Delete the original file before saving the new one
         instance.file.save(
-            f"{instance.title}.webp", ContentFile(output.getvalue()), save=False
+            f"{file_name}.webp", ContentFile(output.getvalue()), save=False
         )
 
         return instance

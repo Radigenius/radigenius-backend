@@ -27,7 +27,7 @@ class Attachment(BaseModel):
 
     @property
     def absolute_url(self):
-        return self.url or f"{config('CDN_URL')}{self.file.url}"
+        return f"{config('CDN_URL')}{self.file.url}"
 
     class Meta(BaseModel.Meta):
         indexes = [
@@ -35,16 +35,13 @@ class Attachment(BaseModel):
         ]
 
     def __str__(self) -> str:
-        return f"({self.file_type}) | {self.content_object} - {self.title}"
+        return f"({self.file_type}) | {self.content_object}"
 
     def save(self, *args, **kwargs):
         if self.file:
             # Use create_attachment method from the manager
             new_instance = Attachment.objects.create_attachment(
                 file=self.file,
-                title=self.title,
-                description=self.description,
-                url=self.url,
                 content_type=self.content_type,
                 object_id=self.object_id,
             )

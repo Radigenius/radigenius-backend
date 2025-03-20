@@ -31,9 +31,6 @@ class Message(BaseModel):
     class Meta(BaseModel.Meta):
         pass
 
-    def __str__(self):
-        return str(self.title)
-        
     def clean(self):
         """Ensure content_type is User for now"""
         super().clean()
