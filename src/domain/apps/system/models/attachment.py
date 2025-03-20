@@ -11,7 +11,9 @@ from domain.apps.system.managers import AttachmentsManager
 
 
 def upload_to(instance, filename):
-    return f"{instance.content_type.model}/{instance.object_id}/{filename}"
+    # Handle case where object_id might be None initially
+    object_folder = instance.object_id if instance.object_id else "pending"
+    return f"{instance.content_type.model}/{object_folder}/{filename}"
 
 
 class Attachment(BaseModel):
@@ -20,7 +22,7 @@ class Attachment(BaseModel):
 
     # Generic foreign key
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
-    object_id = models.UUIDField(db_index=True, default=GUID, editable=False)
+    object_id = models.UUIDField(db_index=True, null=True, blank=True)
     content_object = GenericForeignKey("content_type", "object_id")
 
     objects = AttachmentsManager()
@@ -38,8 +40,8 @@ class Attachment(BaseModel):
         return f"({self.file_type}) | {self.content_object}"
 
     def save(self, *args, **kwargs):
-        if self.file:
-            # Use create_attachment method from the manager
+        if self.file and not self.id:
+            # Use create_attachment method from the manager only for new file uploads
             new_instance = Attachment.objects.create_attachment(
                 file=self.file,
                 content_type=self.content_type,

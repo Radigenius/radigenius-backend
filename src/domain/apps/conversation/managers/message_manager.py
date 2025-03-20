@@ -6,6 +6,9 @@ from domain.base import BaseManager
 User = get_user_model()
 
 class MessageManager(BaseManager):
+
+    def prepare_list_queryset(self, queryset=None):
+        return super().prepare_list_queryset(queryset).prefetch_related("attachments")
         
     def create_for_user(self, user, **kwargs):
         """Helper method to create a message with a User author"""

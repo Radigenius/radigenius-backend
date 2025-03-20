@@ -12,7 +12,8 @@ class AttachmentSerializer(ModelSerializer):
         required=True,
         write_only=True,
     )
-    object_id = UUIDField(required=True)
+    object_id = UUIDField(required=False, allow_null=True)
+
     class Meta:
         model = Attachment
         fields = [
