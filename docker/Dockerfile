@@ -17,7 +17,7 @@ RUN poetry config virtualenvs.create false
 COPY pyproject.toml poetry.lock* /app/
 
 # Install PyTorch with CUDA first (largest dependency)
-RUN pip install --no-cache-dir torch==2.6.0 --index-url https://download.pytorch.org/whl/cu121
+RUN pip install --no-cache-dir torch==2.6.0
 
 # Install core scientific packages
 RUN pip install --no-cache-dir numpy>=1.24.0 unsloth==2025.3.15

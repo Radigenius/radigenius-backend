@@ -216,3 +216,8 @@ class NotAuthenticatedException(BaseCustomException):
             key="not_authenticated",
             errors=[],
         )
+
+
+class ModelInferenceException(BaseCustomException):
+    def __init__(self, message="Model Inference Error", key="model_inference_error", errors=None):
+        super().__init__(message, status.HTTP_502_BAD_GATEWAY, key=key, errors=errors)

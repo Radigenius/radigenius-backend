@@ -96,3 +96,9 @@ docs/_build/
 
 # VSCode Editor
 # .vscode
+
+# Unsloth compiled cache
+unsloth_compiled_cache/
+
+# Model cache
+model_cache/
