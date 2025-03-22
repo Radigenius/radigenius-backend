@@ -12,7 +12,7 @@ from domain.apps.conversation.managers import MessageManager
 User = get_user_model()
 
 class Message(BaseModel):
-    attachments = GenericRelation("system.Attachment")
+    attachments = GenericRelation("system.Attachment", on_delete=models.CASCADE)
     content = models.TextField(blank=True, null=True)
     parent = models.ForeignKey("self", null=True, blank=True, on_delete=models.SET_NULL)
     chat = models.ForeignKey("conversation.Chat", on_delete=models.RESTRICT, related_name="messages")
