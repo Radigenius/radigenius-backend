@@ -6,6 +6,8 @@ from typing import List
 from huggingface_hub import snapshot_download
 from unsloth import FastVisionModel
 
+from django.conf import settings
+
 from domain.apps.system.models import Attachment
 from infrastructure.exceptions.exceptions import ModelInferenceException, ModelDownloadException, ModelNotInitializedException
 from infrastructure.decorators.model_initialized_guard import model_initialized_guard
@@ -18,14 +20,20 @@ class RadiGenius:
     model = None
     tokenizer = None
     device = None
+    is_mock = False
 
     def __init__(self) -> None:
+        # Check if we should run in mock mode based on DEBUG setting
+        RadiGenius.is_mock = getattr(settings, 'DEBUG', False)
         
-        if RadiGenius.model is None or RadiGenius.tokenizer is None:
-            self.initialize_model()
-        
-        if RadiGenius.device is None:
-            self.initialize_device()
+        if not RadiGenius.is_mock:
+            if RadiGenius.model is None or RadiGenius.tokenizer is None:
+                self.initialize_model()
+            
+            if RadiGenius.device is None:
+                self.initialize_device()
+        else:
+            logger.info("Running RadiGenius in mock mode (DEBUG=True)")
 
     @classmethod
     def initialize_model(cls):
@@ -52,6 +60,10 @@ class RadiGenius:
         Returns:
             str: Path to the downloaded model directory
         """
+        if cls.is_mock:
+            logger.info("Mock mode: Skipping model download")
+            return "/mock/model/path"
+            
         try:
             # Get model configuration from config.py
             config = get_config()
@@ -95,6 +107,19 @@ class RadiGenius:
     @classmethod
     @model_initialized_guard
     def send_message(cls, content, attachments=[]):
+        """
+        Send a message to the model and get a response.
+        If in mock mode, returns a simplified response based on the input.
+        """
+        if cls.is_mock:
+            # Create a mock response using a portion of the input content
+            mock_response = f"[MOCK RESPONSE] Echo of your prompt: '{content[:100]}...'"
+            
+            # Log the mock operation
+            logger.info(f"Mock RadiGenius used. Input length: {len(content)}, attachments: {len(attachments)}")
+            
+            return mock_response
+        
         try:
             template = cls._create_template(content, attachments)
             input_text = cls.tokenizer.apply_chat_template(template, add_generation_prompt=True)
@@ -122,3 +147,4 @@ class RadiGenius:
         cls.model = None
         cls.tokenizer = None
         cls.device = None
+        cls.is_mock = False
