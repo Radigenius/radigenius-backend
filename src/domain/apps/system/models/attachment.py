@@ -37,10 +37,10 @@ class Attachment(BaseModel):
         ]
 
     def __str__(self) -> str:
-        return f"({self.file_type}) | {self.content_object}"
+        return f"({self.file_type}) | {self.content_object if self.object_id else 'pending'}"
 
     def save(self, *args, **kwargs):
-        if self.file and not self.id:
+        if self.file and not self.file_type:
             # Use create_attachment method from the manager only for new file uploads
             new_instance = Attachment.objects.create_attachment(
                 file=self.file,

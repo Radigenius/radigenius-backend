@@ -102,3 +102,6 @@ unsloth_compiled_cache/
 
 # Model cache
 model_cache/
+
+# Media files
+**/media/**
