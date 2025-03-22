@@ -10,14 +10,14 @@ from infrastructure.handlers.conversation import ChatHandler
 class ChatCommand(BaseCommand):
     handler = ChatHandler
 
-    def create(self, data):
+    # def create(self, data):
 
-        validated_data = self.validate(data)
-        handler = self.handler(self.view, self.request)
-        chat = handler.create(validated_data)
-        serializer = self.view.get_output_serializer(chat)
+    #     validated_data = self.validate(data)
+    #     handler = self.handler(self.view, self.request)
+    #     chat = handler.create(validated_data)
+    #     serializer = self.view.get_output_serializer(chat)
 
-        return Response(data={"data": serializer.data}, status=status.HTTP_201_CREATED)
+    #     return Response(data={"data": serializer.data}, status=status.HTTP_201_CREATED)
     
 
     def send_message(self, chat_id, message):

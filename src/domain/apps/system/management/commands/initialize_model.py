@@ -11,6 +11,6 @@ class Command(BaseCommand):
         
         logger.info('CORE | initialize_model | Initializing Model...')
 
-        RadiGenius.initialize_model()
+        RadiGenius()
 
         logger.info('CORE | initialize_model | Model Initialized!')

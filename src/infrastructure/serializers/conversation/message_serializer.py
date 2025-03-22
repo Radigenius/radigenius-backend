@@ -4,13 +4,21 @@ from rest_framework.serializers import (
     CharField,
     UUIDField,
     ListField,
+    SerializerMethodField,
 )
 from domain.apps.conversation.models import Message
 from infrastructure.validators.identity.serializer_validators import (
     EitherFieldRequired,
 )
+from infrastructure.serializers.system.attachment_serializer import AttachmentModelSerializer
 
 class MessageModelSerializer(ModelSerializer):
+    attachments = AttachmentModelSerializer(many=True, read_only=True)
+    author_type = SerializerMethodField(read_only=True)
+
+
+    def get_author_type(self, obj):
+        return obj.author_type.model
 
     class Meta:
         model = Message
@@ -20,7 +28,8 @@ class MessageModelSerializer(ModelSerializer):
             "parent_id",
             "content",
             "chat_id",
-            # "author_id",
+            "author_type",
+            "author_id",
             "created_date",
         ]
         read_only_fields = [
@@ -28,8 +37,9 @@ class MessageModelSerializer(ModelSerializer):
             "attachments",
             "parent_id",
             "content",
+            "author_type",
             "chat_id",
-            # "author_id",
+            "author_id",
             "created_date",
         ]
 
@@ -49,20 +59,3 @@ class MessageCreateSerializer(Serializer):
         validators = [
             EitherFieldRequired(field_name="attachment_ids", field2="content"),
         ]
-
-
-# class NewMessageSerializer(MessageMixinSerializer):
-    
-#     class Meta(MessageMixinSerializer.Meta):
-#         pass
-
-
-# class AddMessageSerializer(MessageMixinSerializer):
-#     chat_id = UUIDField(required=True)
-    
-#     class Meta(MessageMixinSerializer.Meta):
-#         fields = MessageMixinSerializer.Meta.fields + [
-#             "chat_id",
-#         ]
-
-

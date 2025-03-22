@@ -4,7 +4,7 @@ from django.contrib.contenttypes.models import ContentType
 from domain.apps.conversation.models import Message
 from domain.apps.system.models import Attachment
 
-class AttachmentSerializer(ModelSerializer):
+class AttachmentModelSerializer(ModelSerializer):
     content_type = ChoiceField(
         choices=[
             ContentType.objects.get_for_model(Message).model

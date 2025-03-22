@@ -7,6 +7,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 
 from domain.base import BaseModel
+from domain.apps.system.models import Model
 from domain.apps.conversation.managers import MessageManager
 
 User = get_user_model()
@@ -18,13 +19,13 @@ class Message(BaseModel):
     chat = models.ForeignKey("conversation.Chat", on_delete=models.RESTRICT, related_name="messages")
     
     # Generic relation for authorship
-    content_type = models.ForeignKey(
+    author_type = models.ForeignKey(
         ContentType,
         on_delete=models.CASCADE,
-        limit_choices_to={'model__in': ['user']}
+        limit_choices_to={'model__in': ['user', 'model']}
     )
-    object_id = models.UUIDField(db_index=True, default=GUID, editable=False)
-    author = GenericForeignKey('content_type', 'object_id')
+    author_id = models.UUIDField(db_index=True, default=GUID, editable=False)
+    author = GenericForeignKey('author_type', 'author_id')
     
     objects = MessageManager()
 
@@ -32,12 +33,12 @@ class Message(BaseModel):
         pass
 
     def clean(self):
-        """Ensure content_type is User for now"""
+        """Ensure author_type is User or Model for now"""
         super().clean()
         
-        # Make sure content_type is User model
-        if self.content_type and self.content_type.model_class() != User:
-            raise ValidationError("Currently only User model is supported as author")
+        # Make sure author_type is User and Model model
+        if self.author_type and self.author_type.model_class() not in [User, Model]:
+            raise ValidationError("Currently only User and Model model are supported as author")
             
     def get_user(self):
         """Helper method to get the author as a User instance"""

@@ -10,7 +10,7 @@ from application.enums.throttle.enums import ThrottleScopes
 from infrastructure.commands.conversation.chat import ChatCommand
 from presentation.controllers.base import CustomGenericViewSet
 
-from infrastructure.serializers.conversation import ChatModelSerializer, ChatSmallModelSerializer , ChatCreateSerializer, MessageCreateSerializer
+from infrastructure.serializers.conversation import ChatModelSerializer, ChatSmallModelSerializer , ChatCreateSerializer, MessageCreateSerializer, MessageModelSerializer
 
 class ConversationGenericViewSet(CustomGenericViewSet):
     throttle_scope = ThrottleScopes.High.value
@@ -24,8 +24,12 @@ class ConversationGenericViewSet(CustomGenericViewSet):
             self.input_serializer_class = MessageCreateSerializer
 
     def set_output_serializer_class(self):
-        if self.action == "retrieve":
+
+        if self.action in ["create", "retrieve"]:
             self.output_serializer_class = ChatModelSerializer
+
+        if self.action == "send_message":
+            self.output_serializer_class = MessageModelSerializer
 
     def get_permissions(self):
         if self.action == "get_list_for_current_user":

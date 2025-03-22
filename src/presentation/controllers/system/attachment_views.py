@@ -4,7 +4,7 @@ from rest_framework.parsers import MultiPartParser, FormParser
 
 from infrastructure.commands.system.attachment import AttachmentCommand
 from infrastructure.serializers.system import (
-    AttachmentSerializer, 
+    AttachmentModelSerializer, 
 )
 from presentation.controllers.base import CustomGenericViewSet
 
@@ -12,8 +12,8 @@ from presentation.controllers.base import CustomGenericViewSet
 class AttachmentGenericViewSet(CustomGenericViewSet):
     permission_classes = [IsAuthenticated]
     parser_classes = [MultiPartParser, FormParser]
-    input_serializer_class = AttachmentSerializer
-    output_serializer_class = AttachmentSerializer
+    input_serializer_class = AttachmentModelSerializer
+    output_serializer_class = AttachmentModelSerializer
     command = AttachmentCommand
     
     def create(self, request, *args, **kwargs):

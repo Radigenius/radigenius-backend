@@ -1,1 +1,1 @@
-from .attachment_serializer import AttachmentSerializer
+from .attachment_serializer import AttachmentModelSerializer

@@ -14,7 +14,7 @@ class MessageCreationAndChangeForm(CustomModelForm):
 @admin.register(Message)
 class MessageAdmin(CustomModelAdmin):
     model = Message
-    list_display = ("id", "chat", "content", "created_date", "updated_date")
+    list_display = ("id", "chat", "content", "author", "created_date", "updated_date")
     form = MessageCreationAndChangeForm
     inlines = [AttachmentInline]
 
