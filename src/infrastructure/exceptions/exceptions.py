@@ -221,3 +221,12 @@ class NotAuthenticatedException(BaseCustomException):
 class ModelInferenceException(BaseCustomException):
     def __init__(self, message="Model Inference Error", key="model_inference_error", errors=None):
         super().__init__(message, status.HTTP_502_BAD_GATEWAY, key=key, errors=errors)
+
+class ModelDownloadException(BaseCustomException):
+    def __init__(self, message="Model Download Error", key="model_download_error", errors=None):
+        super().__init__(message, status.HTTP_502_BAD_GATEWAY, key=key, errors=errors)
+
+
+class ModelNotInitializedException(BaseCustomException):
+    def __init__(self, message="Model Not Initialized", key="model_not_initialized", errors=None):
+        super().__init__(message, status.HTTP_502_BAD_GATEWAY, key=key, errors=errors)

@@ -1,10 +1,18 @@
+import logging
 from PIL import Image
 import torch
+import os
 from typing import List
+from huggingface_hub import snapshot_download
+from unsloth import FastVisionModel
 
 from domain.apps.system.models import Attachment
-from .model_utils import initialize_model
-from infrastructure.exceptions.exceptions import ModelInferenceException
+from infrastructure.exceptions.exceptions import ModelInferenceException, ModelDownloadException, ModelNotInitializedException
+from infrastructure.decorators.model_initialized_guard import model_initialized_guard
+
+from .config import get_config
+
+logger = logging.getLogger(__name__)
 
 class RadiGenius:
     model = None
@@ -21,13 +29,55 @@ class RadiGenius:
 
     @classmethod
     def initialize_model(cls):
-        model, tokenizer = initialize_model()
+        """Initialize and return the base model and tokenizer."""
+        config = get_config()
+        print('initializing model config: ', config)
+        model, tokenizer = FastVisionModel.from_pretrained(**config)
+        print('initializing model for inference')
+        FastVisionModel.for_inference(model)
+
         cls.model = model
         cls.tokenizer = tokenizer
 
     @classmethod
     def initialize_device(cls):
         cls.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+    @classmethod
+    def download_model(cls):
+        """
+        Downloads the model files from Hugging Face Hub to the local cache directory.
+        This method can be called independently to pre-download the model files.
+        
+        Returns:
+            str: Path to the downloaded model directory
+        """
+        try:
+            # Get model configuration from config.py
+            config = get_config()
+            model_name = config["model_name"]
+            cache_dir = config["cache_dir"]
+            
+            # Create cache directory if it doesn't exist
+            os.makedirs(cache_dir, exist_ok=True)
+            
+            logger.info(f"Downloading model '{model_name}' to {cache_dir}...")
+            
+            # Download the model files
+            local_dir = snapshot_download(
+                repo_id=model_name,
+                cache_dir=cache_dir,
+                local_dir=os.path.join(cache_dir, model_name.split("/")[-1]),
+                local_dir_use_symlinks=False,
+                resume_download=True,
+                revision="main"
+            )
+            
+            logger.info(f"Model successfully downloaded to {local_dir}")
+                
+            return local_dir
+        except Exception as e:
+            raise ModelDownloadException(errors=str(e))
 
     @staticmethod
     def _create_template(content: str, attachments: List[Attachment]=[]):
@@ -43,6 +93,7 @@ class RadiGenius:
         return template
         
     @classmethod
+    @model_initialized_guard
     def send_message(cls, content, attachments=[]):
         try:
             template = cls._create_template(content, attachments)
@@ -57,6 +108,8 @@ class RadiGenius:
             )
             generated_text = cls.tokenizer.decode(output_ids[0], skip_special_tokens=True)
             return generated_text.replace("assistant", "\n\nassistant").strip()
+        except ModelNotInitializedException:
+            raise
         except Exception as e:
             raise ModelInferenceException(errors=e)
 
