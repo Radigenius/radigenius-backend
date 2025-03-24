@@ -1,15 +1,18 @@
-from django.core.files.base import ContentFile
 from io import BytesIO
 from PIL import Image as PILImage
 from pathlib import Path
+import magic
 import logging
 
+from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
+from django.db.models import QuerySet
 
-from domain.enums.system.enum import AttachmentFileTypes
+
 from domain.base import BaseManager
+from domain.enums.system.enum import AttachmentFileTypes
+from domain.apps.system.models.attachment import Attachment
 from infrastructure.exceptions.exceptions import UnsupportedFileTypeException
-import magic
 
 
 class AttachmentsManager(BaseManager):
@@ -88,13 +91,13 @@ class AttachmentsManager(BaseManager):
     def _process_pdf(self, instance):
         raise NotImplementedError("_process_pdf is not implemented")
         
-    def link_to_message(self, attachment_id, message_id):
+    def link_to_message(self, attachment: Attachment, message_id):
         """
         Links an attachment to a message by setting its object_id
         and updating file storage path if necessary.
         
         Args:
-            attachment_id: UUID of the attachment to update
+            attachment: Attachment instance to update
             message_id: UUID of the message to link to
             
         Returns:
@@ -104,17 +107,14 @@ class AttachmentsManager(BaseManager):
             self.model.DoesNotExist: If attachment with given ID doesn't exist
             IOError: If file operations fail
         """
-        # Get the attachment instance
-        instance = self.get(id=attachment_id)
-        
         # Store the current file path before updating object_id
-        old_path = instance.file.path
+        old_path = attachment.file.path
         is_pending = "pending" in old_path
         save_fields = []
         
         # Update object_id and save to get new path
-        if not instance.object_id:
-            instance.object_id = message_id
+        if not attachment.object_id:
+            attachment.object_id = message_id
             save_fields.append('object_id')
         
         # Only move the file if it was previously in a pending state
@@ -122,11 +122,11 @@ class AttachmentsManager(BaseManager):
             try:
                 
                 # Generate the new path based on upload_to function
-                filename = Path(instance.file.name).name
+                filename = Path(attachment.file.name).name
                 
                 # Create a new file at the correct location and copy content
                 with default_storage.open(old_path, 'rb') as source:
-                    instance.file.save(filename, source, save=False)
+                    attachment.file.save(filename, source, save=False)
                     save_fields.append('file')
                 
                 # Delete the old file
@@ -135,28 +135,27 @@ class AttachmentsManager(BaseManager):
             except Exception as e:
                 logging.error(f"Error linking attachment to message: {e}")
 
-        instance.save(update_fields=save_fields)
+        attachment.save(update_fields=save_fields)
         
-        return instance
+        return attachment
 
-    def unlink_from_message(self, attachment_id):
+    def unlink_from_message(self, attachment: Attachment):
 
-        instance = self.get(id=attachment_id)
         update_fields = []
-        filename = Path(instance.file.name).name
-        old_path = instance.file.path
+        filename = Path(attachment.file.name).name
+        old_path = attachment.file.path
 
-        if instance.object_id:
-            instance.object_id = None
+        if attachment.object_id:
+            attachment.object_id = None
             update_fields.append('object_id')
 
         # move the file to the pending folder
-        if instance.file and old_path and default_storage.exists(old_path):
+        if attachment.file and old_path and default_storage.exists(old_path):
 
             try:
                 # Create a new file at the correct location and copy content
                 with default_storage.open(old_path, 'rb') as source:
-                    instance.file.save(filename, source, save=False)
+                    attachment.file.save(filename, source, save=False)
                 update_fields.append('file')
                 
                 # Delete the old file
@@ -165,61 +164,29 @@ class AttachmentsManager(BaseManager):
             except Exception as e:
                 logging.error(f"Error unlinking attachment from message: {e}")
 
-        instance.save(update_fields=update_fields)
+        attachment.save(update_fields=update_fields)
 
-        return instance
+        return attachment
         
-    def link_attachments_to_message(self, attachment_ids, message_id):
+    def batch_link_attachment_to_message(self, attachments: QuerySet[Attachment], message_id):
         """
         Links multiple attachments to a message by setting their object_id.
         
         Args:
-            attachment_ids (list): List of attachment IDs to link
+            attachments (QuerySet[Attachment]): Queryset of attachments to link
             message_id (UUID): The ID of the message to link attachments to
             
         Returns:
             int: Number of attachments linked
         """
-        if not attachment_ids:
-            return 0
-            
-        # Get all attachments with the given IDs
-        attachments = self.filter(id__in=attachment_ids)
         count = 0
         
         # Link each attachment to the message
         for attachment in attachments:
             try:
-                self.link_to_message(attachment.id, message_id)
+                self.link_to_message(attachment, message_id)
                 count += 1
             except Exception as e:
                 logging.error(f"Failed to link attachment {attachment.id} to message {message_id}: {e}")
             
-        return count
-
-
-    def unlink_attachments_from_message(self, attachment_ids, message_id):
-        """
-        Unlinks multiple attachments from a message by setting their object_id to None.
-        
-        Args:
-            attachment_ids (list): List of attachment IDs to unlink 
-            message_id (UUID): The ID of the message to unlink attachments from
-            
-        Returns:
-            int: Number of attachments unlinked
-        """
-        if not attachment_ids:
-            return 0
-
-        attachments = self.filter(id__in=attachment_ids)
-        count = 0
-
-        for attachment in attachments:
-            try:
-                self.unlink_from_message(attachment.id)
-                count += 1
-            except Exception as e:
-                logging.error(f"Failed to unlink attachment {attachment.id} from message {message_id}: {e}")
-
         return count

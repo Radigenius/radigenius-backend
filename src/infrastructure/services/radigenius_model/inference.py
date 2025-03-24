@@ -7,6 +7,7 @@ from huggingface_hub import snapshot_download
 from unsloth import FastVisionModel
 
 from django.conf import settings
+from django.db.models import QuerySet
 
 from domain.apps.system.models import Attachment
 from infrastructure.exceptions.exceptions import ModelInferenceException, ModelDownloadException, ModelNotInitializedException
@@ -92,21 +93,20 @@ class RadiGenius:
             raise ModelDownloadException(errors=str(e))
 
     @staticmethod
-    def _create_template(content: str, attachments: List[Attachment]=[]):
+    def _create_template(content: str, attachment_count: int):
 
-        template = [{"role": "user", "content": [
-            {"type": "text", "text": content}
-        ]}]
-        
-        for attachment in attachments:
-            image = Image.open(attachment.file.path)
-            template.append({"type": "image", "image": image})
+        template = [
+            {"role": "user", "content": [
+                *[{"type": "image"} for _ in range(attachment_count)],
+                {"type": "text", "text": content}
+            ]}
+        ]
 
         return template
         
     @classmethod
     @model_initialized_guard
-    def send_message(cls, content, attachments=[]):
+    def send_message(cls, content, attachments: QuerySet[Attachment]=[]):
         """
         Send a message to the model and get a response.
         If in mock mode, returns a simplified response based on the input.
@@ -121,11 +121,14 @@ class RadiGenius:
             return mock_response
         
         try:
-            template = cls._create_template(content, attachments)
+            template = cls._create_template(content, attachments.count())
             input_text = cls.tokenizer.apply_chat_template(template, add_generation_prompt=True)
             inputs = cls.tokenizer(input_text, add_special_tokens=False, return_tensors="pt").to(cls.device)
-            
+
+            images = [Image.open(attachment.file.path) for attachment in attachments.only("file")]
+
             output_ids = cls.model.generate(
+                images,
                 **inputs,
                 max_new_tokens=256,
                 temperature=1.5,

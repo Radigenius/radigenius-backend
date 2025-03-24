@@ -26,7 +26,7 @@ def link_or_unlink_attachment_to_entity(sender, instance, created, **kwargs):
     
     # when the attachment is pending, we need to link it to the entity
     if 'pending' in instance.file.path and instance.object_id:
-        Attachment.objects.link_to_message(instance.id, instance.object_id)
+        Attachment.objects.link_to_message(instance, instance.object_id)
         logger.info(f"SIGNAL | system_signal | link_attachment_to_entity | Linked attachment to entity for file: {instance.file.path}")
 
     # when the attachment is not pending, we need to unlink it from the entity

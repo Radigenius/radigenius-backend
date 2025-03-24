@@ -45,7 +45,7 @@ class MessageModelSerializer(ModelSerializer):
 
 class MessageCreateSerializer(Serializer):
     attachment_ids = ListField(
-        child=UUIDField(required=False), allow_empty=True, required=False
+        child=UUIDField(required=True), allow_empty=False, required=True
     )
     parent_id = UUIDField(required=False, allow_null=True)
     content = CharField(required=False)
@@ -55,7 +55,4 @@ class MessageCreateSerializer(Serializer):
             "attachment_ids",
             "parent_id",
             "content",
-        ]
-        validators = [
-            EitherFieldRequired(field_name="attachment_ids", field2="content"),
         ]
