@@ -25,6 +25,7 @@ class CustomAttachmentAdmin(CustomModelAdmin):
     list_display = (
         "id",
         "file_type",
+        "absolute_url",
         "content_type",
         "object_id",
     )
