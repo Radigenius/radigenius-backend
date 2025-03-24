@@ -11,7 +11,6 @@ from django.db.models import QuerySet
 
 from domain.base import BaseManager
 from domain.enums.system.enum import AttachmentFileTypes
-from domain.apps.system.models.attachment import Attachment
 from infrastructure.exceptions.exceptions import UnsupportedFileTypeException
 
 
@@ -91,7 +90,7 @@ class AttachmentsManager(BaseManager):
     def _process_pdf(self, instance):
         raise NotImplementedError("_process_pdf is not implemented")
         
-    def link_to_message(self, attachment: Attachment, message_id):
+    def link_to_message(self, attachment, message_id):
         """
         Links an attachment to a message by setting its object_id
         and updating file storage path if necessary.
@@ -139,7 +138,7 @@ class AttachmentsManager(BaseManager):
         
         return attachment
 
-    def unlink_from_message(self, attachment: Attachment):
+    def unlink_from_message(self, attachment):
 
         update_fields = []
         filename = Path(attachment.file.name).name
@@ -168,7 +167,7 @@ class AttachmentsManager(BaseManager):
 
         return attachment
         
-    def batch_link_attachment_to_message(self, attachments: QuerySet[Attachment], message_id):
+    def batch_link_attachment_to_message(self, attachments: QuerySet, message_id):
         """
         Links multiple attachments to a message by setting their object_id.
         
