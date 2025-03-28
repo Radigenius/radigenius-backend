@@ -45,10 +45,10 @@ class MessageModelSerializer(ModelSerializer):
 
 class MessageCreateSerializer(Serializer):
     attachment_ids = ListField(
-        child=UUIDField(required=True), allow_empty=False, required=True
+        child=UUIDField(required=False), allow_empty=True, required=False
     )
     parent_id = UUIDField(required=False, allow_null=True)
-    content = CharField(required=False)
+    content = CharField(required=True)
 
     class Meta:
         fields = [

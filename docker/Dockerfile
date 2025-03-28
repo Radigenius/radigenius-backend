@@ -16,12 +16,6 @@ RUN poetry config virtualenvs.create false
 # Copy only requirements to cache them in docker layer
 COPY pyproject.toml poetry.lock* /app/
 
-# Install PyTorch with CUDA first (largest dependency)
-RUN pip install --no-cache-dir torch==2.6.0
-
-# Install core scientific packages
-RUN pip install --no-cache-dir numpy>=1.24.0 unsloth==2025.3.15
-
 # Install remaining dependencies without reinstalling Python
 RUN poetry install --no-interaction --no-ansi --without dev --no-root
 

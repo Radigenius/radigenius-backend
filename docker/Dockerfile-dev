@@ -1,4 +1,4 @@
-FROM pytorch/pytorch:2.6.0-cuda12.4-cudnn9-runtime
+FROM python:3.11
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
@@ -7,13 +7,6 @@ ENV PIP_DISABLE_PIP_VERSION_CHECK=on
 
 WORKDIR /app
 
-# Install minimal build tools and libmagic
-RUN apt-get update && apt-get install -y --no-install-recommends \
-  build-essential \
-  libmagic1 \
-  && apt-get clean \
-  && rm -rf /var/lib/apt/lists/*
-
 # Create a separate layer for pip and poetry installation (rarely changes)
 RUN pip install --upgrade pip && \
   pip install --no-cache-dir poetry debugpy
@@ -21,9 +14,6 @@ RUN poetry config virtualenvs.create false
 
 # Copy only requirements to cache them in docker layer
 COPY pyproject.toml poetry.lock* /app/
-
-# Install core scientific packages
-RUN pip install --no-cache-dir numpy>=1.24.0 unsloth==2025.3.15
 
 # Install remaining dependencies without reinstalling Python
 RUN poetry install --no-interaction --no-ansi --with dev --no-root

@@ -41,8 +41,8 @@ class BaseCommand(IBaseCommand):
         serializer.is_valid(raise_exception=True)
         validated_data = serializer.validated_data
 
-        if not bool(validated_data):
-            raise ValidationException(message="Empty Payload")
+        # if not bool(validated_data):
+        #     raise ValidationException(message="Empty Payload")
 
         return validated_data
 

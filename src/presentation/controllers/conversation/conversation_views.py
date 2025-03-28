@@ -25,7 +25,7 @@ class ConversationGenericViewSet(CustomGenericViewSet):
 
     def set_output_serializer_class(self):
 
-        if self.action in ["create", "retrieve"]:
+        if self.action in ["retrieve"]:
             self.output_serializer_class = ChatModelSerializer
 
         if self.action == "send_message":
@@ -38,8 +38,8 @@ class ConversationGenericViewSet(CustomGenericViewSet):
             self.permission_classes = [IsAdminUser]
         return super().get_permissions()
 
-    def retrieve(self, request, *args, **kwargs):
-        return self.command_class(self, request).retrieve(request.data)
+    def retrieve(self, request, pk=None):
+        return self.command_class(self, request).retrieve(pk=pk)
 
     def list(self, request, *args, **kwargs):
         return self.command_class(self, request).list(paginated=True)

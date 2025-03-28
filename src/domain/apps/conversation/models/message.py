@@ -30,7 +30,7 @@ class Message(BaseModel):
     objects = MessageManager()
 
     class Meta(BaseModel.Meta):
-        pass
+        ordering = ("created_date",)
 
     def clean(self):
         """Ensure author_type is User or Model for now"""

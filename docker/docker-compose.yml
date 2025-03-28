@@ -59,16 +59,6 @@ services:
       - "5680:5680"
     env_file:
       - ../envs/dev/backend/.env
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [ gpu ]
-    # environment:
-    #   - NVIDIA_VISIBLE_DEVICES=all
-    #   - NVIDIA_DRIVER_CAPABILITIES=compute,utility
     # worker:
     #   image: radigenius-backend
     #   container_name: radigenius-worker

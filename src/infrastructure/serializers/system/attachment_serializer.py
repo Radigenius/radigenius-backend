@@ -19,9 +19,10 @@ class AttachmentModelSerializer(ModelSerializer):
         fields = [
             'id', 
             'file', 
+            "file_type",
             'content_type', 
             'object_id',
             'absolute_url', 
             'created_date',
         ]
-        read_only_fields = ['id', 'absolute_url', 'created_date']
+        read_only_fields = ['id', 'absolute_url', 'created_date', 'file_type']

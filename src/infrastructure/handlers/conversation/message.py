@@ -19,7 +19,8 @@ class MessageHandler(BaseHandler):
             attachment_ids = data.pop("attachment_ids", [])
             attachments = Attachment.objects.filter(id__in=attachment_ids)
 
-            if not attachments.exists():
+            # Attachments are required for user messages
+            if not model_name and not attachments.exists():
                 raise ValidationException("Attachments are required")
             
             if model_name:

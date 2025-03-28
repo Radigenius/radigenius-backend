@@ -31,4 +31,5 @@ class ChatModelSerializer(ChatSmallModelSerializer):
 
 
 class ChatCreateSerializer(Serializer):
-    message = MessageCreateSerializer(required=True)
+    pass
+    # message = MessageCreateSerializer(required=True)
