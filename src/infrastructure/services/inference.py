@@ -18,7 +18,7 @@ class InferenceService:
         self.chat = chat
 
     def _prepare_endpoint(self, endpoint: str):
-        return f"{self.base_url}/{endpoint}"
+        return f"{self.base_url}/{endpoint}/"
 
     @staticmethod
     def _prepare_configs(model: ModelTypes):
@@ -27,7 +27,7 @@ class InferenceService:
             "temperature": 0.7,
             "min_p": 0.05,
             "model": model,
-            "stream": True,
+            "stream": False,
         }
 
     def _prepare_payload(self, message: Message):
@@ -93,7 +93,7 @@ class InferenceService:
       return self._handle_message(collected, payload)
 
     def _handle_message(self, response: str, payload):
-        return self.message_handler.create({"content": response, "chat": self.chat}, model_name=payload.get("model"))
+        return self.message_handler.create({"content": response, "chat": self.chat}, model_name=ModelTypes.RADIGENIUS)
 
     def generate_chat_title(self, message: Message):
         return 'Model Generated Title'

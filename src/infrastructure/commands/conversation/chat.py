@@ -18,7 +18,7 @@ class ChatCommand(BaseCommand):
     #     chat = handler.create(validated_data)
 
     #     return StreamingHttpResponse(
-    #         streaming_content=handler.stream_message(chat.id, validated_data),
+    #         streaming_content=handler.send_message(chat.id, validated_data),
     #         content_type='text/event-stream'
     #     )
     
@@ -29,6 +29,6 @@ class ChatCommand(BaseCommand):
         handler = self.handler(self.view, self.request)
         
         return StreamingHttpResponse(
-            streaming_content=handler.stream_message(chat_id, validated_data),
+            streaming_content=handler.send_message(chat_id, validated_data),
             content_type='text/event-stream'
         )

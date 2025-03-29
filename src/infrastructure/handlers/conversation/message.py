@@ -12,15 +12,14 @@ User = get_user_model()
 class MessageHandler(BaseHandler):
     model = Message
 
-    def create(self, data, model_name=None):
+    def create(self, data, model_name=None, attachments_required=False):
 
         with transaction.atomic():
 
             attachment_ids = data.pop("attachment_ids", [])
             attachments = Attachment.objects.filter(id__in=attachment_ids)
-
-            # Attachments are required for user messages
-            if not model_name and not attachments.exists():
+            
+            if attachments_required and not attachments.exists():
                 raise ValidationException("Attachments are required")
             
             if model_name:
@@ -30,8 +29,9 @@ class MessageHandler(BaseHandler):
                 user = self.request.user
                 message = Message.objects.create_for_user(user, **data)
             
-            # Link attachments to the message
-            Attachment.objects.batch_link_attachment_to_message(attachments, message.id)
+            if attachments.exists():
+                # Link attachments to the message
+                Attachment.objects.batch_link_attachment_to_message(attachments, message.id)
         
         return message
 
