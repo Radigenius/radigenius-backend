@@ -1,0 +1,52 @@
+name: Deploy to Server
+on:
+    push:
+        branches:
+            - main
+
+jobs:
+    deploy_main:
+        if: github.ref == 'refs/heads/main'
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+            - name: Set up SSH agent for main
+              uses: webfactory/ssh-agent@v0.9.0
+              with:
+                  ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+            - name: Deploy to main via SSH
+              run: |
+                  ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USERNAME }}@${{ secrets.SERVER_IP }} << 'EOF'
+                    if [ ! -d "/opt/radigenius-backend/.git" ]; then
+                      rm -rf /opt/radigenius-backend
+                      git clone https://${{ secrets.USERNAME }}:${{ secrets.PAT }}@github.com/${{ github.repository }}.git /opt/radigenius-backend
+                    fi
+                    cd /opt/radigenius-backend
+                    git remote set-url origin https://${{ secrets.USERNAME }}:${{ secrets.PAT }}@github.com/${{ github.repository }}.git
+                    git fetch origin main
+                    git reset --hard
+                    git clean -fd
+                    git reset --hard origin/main
+                    docker compose down
+                    docker image prune -f
+                    docker builder prune -af
+                    docker compose -f docker/docker-compose-prod.yml up --build -d
+                  EOF
+
+    collect_logs_main:
+        if: github.ref == 'refs/heads/main'
+        runs-on: ubuntu-latest
+        needs: deploy_main
+        steps:
+            - name: Set up SSH agent for develop
+              uses: webfactory/ssh-agent@v0.9.0
+              with:
+                  ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+            - name: Collect Docker Compose Logs for develop
+              run: |
+                  ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USERNAME }}@${{ secrets.SERVER_IP }} << 'EOF'
+                    cd /opt/radigenius-backend
+                    docker compose -f docker/docker-compose-prod.yml logs --tail="100"
+                    sleep 15
+                  EOF
