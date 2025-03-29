@@ -7,7 +7,7 @@ from domain.apps.system.models import Attachment
 class AttachmentModelSerializer(ModelSerializer):
     content_type = ChoiceField(
         choices=[
-            ContentType.objects.get_for_model(Message).model
+            'message'
         ],
         required=True,
         write_only=True,
