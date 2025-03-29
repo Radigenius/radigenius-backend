@@ -13,7 +13,8 @@ class ChatHandler(BaseHandler):
 
     def create(self, data: Dict) -> Chat:
         user_id = self.request.user.id
-        return self.model.objects.create(user_id=user_id)
+        title = f'Conversation ${self.model.objects.count() + 1}'
+        return self.model.objects.create(user_id=user_id, title=title)
 
 
     def create_and_send_message(self, data):
