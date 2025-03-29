@@ -72,25 +72,36 @@ class InferenceService:
 
     def send_message(self, message: Message):
 
-      endpoint = self._prepare_endpoint("inference")
-      payload = self._prepare_payload(message)
+        endpoint = self._prepare_endpoint("inference")
+        payload = self._prepare_payload(message)
 
-      collected = ""
-
-      with requests.post(endpoint, json=payload, stream=True) as response:
+        response = requests.post(endpoint, json=payload, stream=True)
+        collected = ""
+        
         if response.status_code == 200:
-            for line in response.iter_lines():
-                if line:
-                    data = line.decode('utf-8')
-                    if data.startswith('data: '):
-                        data = data[6:]
-
-                    collected += data
-                    yield data
+            collected = response.json()
         else:
             raise ModelInferenceException(f"response: {response.text}")
 
-      return self._handle_message(collected, payload)
+        return self._handle_message(collected, payload)
+
+
+    #   collected = ""
+
+    #   with requests.post(endpoint, json=payload, stream=True) as response:
+    #     if response.status_code == 200:
+    #         for line in response.iter_lines():
+    #             if line:
+    #                 data = line.decode('utf-8')
+    #                 if data.startswith('data: '):
+    #                     data = data[6:]
+
+    #                 collected += data
+    #                 yield data
+    #     else:
+    #         raise ModelInferenceException(f"response: {response.text}")
+
+    #   return self._handle_message(collected, payload)
 
     def _handle_message(self, response: str, payload):
         return self.message_handler.create({"content": response, "chat": self.chat}, model_name=ModelTypes.RADIGENIUS)
