@@ -407,3 +407,13 @@ if not DEBUG:
             ),
         ],
     )
+
+
+# SMTP
+EMAIL = {
+    "HOST": config("EMAIL_HOST"),
+    "PORT": config("EMAIL_PORT", cast=int),
+    "USER": config("EMAIL_USER"),
+    "PASSWORD": config("EMAIL_PASSWORD"),
+    "FROM": config("EMAIL_FROM"),
+}

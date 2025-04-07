@@ -14,7 +14,7 @@ from domain.base import BaseModel
 
 class User(BaseModel, AbstractBaseUser, PermissionsMixin):
 
-    email = models.EmailField(blank=True, unique=True)
+    email = models.EmailField(unique=True)
 
     date_joined = models.DateTimeField(_("date joined"), default=timezone.now)
     last_used_ip = models.GenericIPAddressField(

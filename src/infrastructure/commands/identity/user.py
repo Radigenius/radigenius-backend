@@ -8,6 +8,8 @@ from infrastructure.commands.base import BaseCommand
 from infrastructure.handlers.identity.user import UserHandler
 # from infrastructure.exceptions.exceptions import UserBanException, ValidationException
 from infrastructure.services.token import TokenService
+from infrastructure.services.mail import MailService
+from domain.apps.identity.models import OTP, User
 
 
 class UserCommand(BaseCommand):
@@ -30,11 +32,33 @@ class UserCommand(BaseCommand):
 
         validated_data = self.validate(data)
         handler = self.handler(self.view, self.request)
+        
+        email = validated_data.get("email")
+        otp = validated_data.pop("otp")
+        
+        OTP.objects.verify(email=email, code=otp)
+
         user = handler.create(validated_data)
+        User.objects.filter(id=user.id).update(is_verified=True)
 
         token_service = TokenService()
         token = token_service.generate(user=user)
         return Response(data={"data": token}, status=status.HTTP_201_CREATED)
+
+
+        # validated_data = self.validate(data)
+
+        # otp = validated_data.pop("otp")
+        # phone_number = validated_data.get("phone_number")
+        # handler = self.handler(self.view, self.request)
+
+        # OTP.objects.verify(phone_number=phone_number, code=otp)
+        # user = handler.create(validated_data)
+        # User.objects.filter(id=user.id).update(is_verified=True)
+
+        # token_service = TokenService()
+        # token = token_service.generate(user=user)
+        # return Response(data={"data": token}, status=status.HTTP_201_CREATED)
 
     def get_by_email(self, data):
 
@@ -115,12 +139,10 @@ class UserCommand(BaseCommand):
 
         validated_data = self.validate(data)
 
-        email = validated_data.get("email")
-        template = validated_data.get("template")
+        mail_service = MailService()
 
-        # sms_service = SMSService()
-
-        # response = sms_service.send_otp(email=email, template=template)
+        otp, created = OTP.objects.get_or_create(email=validated_data.get("email"))
+        mail_service.send_otp_email(to=validated_data.get("email"), otp=otp.code)
         return Response(data={"data": {"status": "sent"}}, status=status.HTTP_200_OK)
 
     def verify_OTP(self, data):

@@ -13,7 +13,8 @@ from infrastructure.serializers.identity import (
     UserRegisterSerializer,
     UserResetPasswordSerializer,
     UserChangePasswordSerializer,
-    EmailSerializer
+    EmailSerializer,
+    OTPGenerateSerializer,
 )
 from presentation.controllers.base import CustomGenericViewSet
 
@@ -29,8 +30,8 @@ class IdentityModelViewSet(CustomGenericViewSet):
             self.input_serializer_class = UserRegisterSerializer
         # if self.action == "reset_password":
         #     self.input_serializer_class = UserResetPasswordSerializer
-        # if self.action == "generate_otp":
-        #     self.input_serializer_class = OTPGenerateSerializer
+        if self.action == "generate_otp":
+            self.input_serializer_class = OTPGenerateSerializer
         # if self.action == "change_password":
         #     self.input_serializer_class = UserChangePasswordSerializer
         if self.action in ["get_by_email", "get_by_email_or_none"]:
@@ -56,9 +57,9 @@ class IdentityModelViewSet(CustomGenericViewSet):
     def create(self, request, *args, **kwargs):
         return self.command_class(self, request).create(request.data)
 
-    # @action(["post"], detail=False)
-    # def generate_otp(self, request, *args, **kwargs):
-    #     return self.command_class(self, request).generate_otp(request.data)
+    @action(["post"], detail=False)
+    def generate_otp(self, request, *args, **kwargs):
+        return self.command_class(self, request).generate_otp(request.data)
 
     @action(["post"], detail=False)
     def get_by_email(self, request, *args, **kwargs):

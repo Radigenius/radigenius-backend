@@ -8,4 +8,4 @@ class IdentityConfig(AppConfig):
 
     def ready(self):
         import infrastructure.signals.identity.signals
-        import presentation.admin.identity.admin
+        import presentation.admin.identity

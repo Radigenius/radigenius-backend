@@ -221,3 +221,8 @@ class NotAuthenticatedException(BaseCustomException):
 class ModelInferenceException(BaseCustomException):
     def __init__(self, message="Model Inference Error", key="model_inference_error", errors=None):
         super().__init__(message, status.HTTP_502_BAD_GATEWAY, key=key, errors=errors)
+
+
+class SendEmailException(BaseCustomException):
+    def __init__(self, message="Send Email Error", key="send_email_error", errors=None):
+        super().__init__(message, status.HTTP_502_BAD_GATEWAY, key=key, errors=errors)

@@ -1,4 +1,10 @@
 from enum import Enum
+from django.db.models import TextChoices
+
+class EmailTemplates(TextChoices):
+
+    # Identity
+    OTPRegister = "OtpRegister"
 
 class CacheKeys(Enum):
 

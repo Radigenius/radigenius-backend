@@ -12,7 +12,7 @@ from infrastructure.validators.identity.serializer_validators import (
     PasswordValidator,
 )
 from .email import EmailSerializer
-
+from .otp_serializer import OTPFieldSerializer
 
 class UserModelSerializer(ModelSerializer):
     # has_password = SerializerMethodField()
@@ -45,7 +45,7 @@ class UserModelSerializer(ModelSerializer):
             "created_date",
         ]
 
-class UserRegisterSerializer(EmailSerializer):
+class UserRegisterSerializer(EmailSerializer, OTPFieldSerializer):
     password = CharField(required=True)
 
     class Meta:
