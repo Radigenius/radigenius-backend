@@ -15,6 +15,7 @@ from infrastructure.serializers.identity import (
     UserChangePasswordSerializer,
     EmailSerializer,
     OTPGenerateSerializer,
+    OTPVerifySerializer,
 )
 from presentation.controllers.base import CustomGenericViewSet
 
@@ -36,11 +37,11 @@ class IdentityModelViewSet(CustomGenericViewSet):
         #     self.input_serializer_class = UserChangePasswordSerializer
         if self.action in ["get_by_email", "get_by_email_or_none"]:
             self.input_serializer_class = EmailSerializer
-        # if self.action == "verify_otp":
-        #     self.input_serializer_class = OTPVerifySerializer
+        if self.action == "verify_otp":
+            self.input_serializer_class = OTPVerifySerializer
 
     def get_permissions(self):
-        if (self.action in ["create", "get_by_email", "get_by_email_or_none"]):
+        if (self.action in ["create", "get_by_email", "get_by_email_or_none", "generate_otp", "verify_otp"]):
             self.permission_classes = [AllowAny]
         if self.action == "retrieve":
             self.permission_classes = [CurrentUserOrAdmin]
@@ -69,6 +70,6 @@ class IdentityModelViewSet(CustomGenericViewSet):
     def get_by_email_or_none(self, request, *args, **kwargs):
         return self.command_class(self, request).get_by_email_or_none(request.data)
 
-    # @action(["post"], detail=False)
-    # def verify_otp(self, request, *args, **kwargs):
-    #     return self.command_class(self, request).verify_OTP(request.data)
+    @action(["post"], detail=False)
+    def verify_otp(self, request, *args, **kwargs):
+        return self.command_class(self, request).verify_OTP(request.data)

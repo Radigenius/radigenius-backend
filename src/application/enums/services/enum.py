@@ -4,7 +4,7 @@ from django.db.models import TextChoices
 class EmailTemplates(TextChoices):
 
     # Identity
-    OTPRegister = "OtpRegister"
+    OTPRegister = "OTPRegister"
 
 class CacheKeys(Enum):
 

@@ -8,4 +8,4 @@ from .user import (
 )
 from .user_id import UserIdSerializer
 from .token import TokenObtainPairSerializer, TokenRefreshSerializer
-from .otp_serializer import OTPGenerateSerializer
+from .otp_serializer import OTPGenerateSerializer, OTPVerifySerializer

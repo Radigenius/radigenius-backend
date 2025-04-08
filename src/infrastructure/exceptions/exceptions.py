@@ -194,7 +194,7 @@ class EntityAlreadyCreatedException(BaseCustomException):
         code=status.HTTP_400_BAD_REQUEST,
     ):
         super().__init__(
-            detail=f"${entity_name} Already Created!", code=code, key=key, errors=[]
+            detail=f"{entity_name} Already Created!", code=code, key=key, errors=[]
         )
 
 
