@@ -1,5 +1,5 @@
 import requests
-
+from json.decoder import JSONDecodeError
 from domain.apps.conversation.models import Message, Chat
 from domain.enums.system.enum import ModelTypes
 
@@ -23,11 +23,11 @@ class InferenceService:
     @staticmethod
     def _prepare_configs(model: ModelTypes):
         return {
-            "max_new_tokens": 500,
+            "max_new_tokens": 600,
             "temperature": 0.7,
-            "min_p": 0.05,
+            "min_p": 0.9,
             "model": model,
-            "stream": False,
+            "stream": True,
         }
 
     def _prepare_payload(self, message: Message):
@@ -69,42 +69,46 @@ class InferenceService:
         response = requests.get(endpoint)
         return response.json()
 
-
     def send_message(self, message: Message):
-
         endpoint = self._prepare_endpoint("inference")
         payload = self._prepare_payload(message)
-
-        response = requests.post(endpoint, json=payload, stream=True)
+        stream = payload.get("configs", {}).get("stream", True)
+        model = payload.get("configs", {}).get("model", ModelTypes.RADIGENIUS)
         collected = ""
-        
-        if response.status_code == 200:
-            collected = response.json()
-        else:
-            raise ModelInferenceException(f"response: {response.text}")
 
-        return self._handle_message(collected, payload)
+        try:
+            with requests.post(endpoint, json=payload, stream=stream) as response:
+                if response.status_code == 200:
+                    # Stream the response
+                    for line in response.iter_lines():
+                        if line:
+                            # Decode the line as UTF-8
+                            data = line.decode('utf-8')
 
+                            # Assuming you want to handle SSE (Server-Sent Events) format:
+                            if data.startswith('data: '):
+                                data = data[6:]
 
-    #   collected = ""
+                            collected += data
+                            # Proper SSE format - each message needs data: prefix and double newlines
+                            yield f"data: {data}\n\n"
 
-    #   with requests.post(endpoint, json=payload, stream=True) as response:
-    #     if response.status_code == 200:
-    #         for line in response.iter_lines():
-    #             if line:
-    #                 data = line.decode('utf-8')
-    #                 if data.startswith('data: '):
-    #                     data = data[6:]
+                    # End of stream marker
+                    yield "data: [DONE]\n\n"
+                    
+                    # Create the assistant message after streaming is complete
+                    self._handle_message(collected, model)
+                else:
+                    raise Exception(response.text)
 
-    #                 collected += data
-    #                 yield data
-    #     else:
-    #         raise ModelInferenceException(f"response: {response.text}")
+        except Exception as e:
+            error_msg = str(e)
+            yield f"data: [ERROR]"
+            raise ModelInferenceException(errors=[{"message": error_msg}, {"code": getattr(response, 'status_code', 550)}])
 
-    #   return self._handle_message(collected, payload)
-
-    def _handle_message(self, response: str, payload):
-        return self.message_handler.create({"content": response, "chat": self.chat}, model_name=ModelTypes.RADIGENIUS)
+    def _handle_message(self, response: str, model: ModelTypes):
+        # Just create the message without returning it since we're in a streaming context
+        self.message_handler.create({"content": response, "chat": self.chat}, model_name=model)
 
     def generate_chat_title(self, message: Message):
         return 'Model Generated Title'

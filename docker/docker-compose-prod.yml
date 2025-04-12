@@ -34,7 +34,7 @@ services:
         env_file:
             - ../envs/prod/db/.env
         healthcheck:
-            test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+            test: [ "CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB" ]
             interval: 10s
             timeout: 3s
             retries: 3
@@ -49,7 +49,7 @@ services:
         networks:
             - networkbackend
             - networkdb
-        command: sh -c "python3 manage.py migrate --noinput && python3 manage.py init && python3 manage.py collectstatic --noinput && gunicorn infrastructure.server.wsgi --bind 0.0.0.0:8000"
+        command: sh -c "python3 manage.py migrate --noinput && python3 manage.py init && python3 manage.py collectstatic --noinput && gunicorn infrastructure.server.wsgi --worker-class gthread --threads 2 --timeout 120 --bind 0.0.0.0:8000"
         ports:
             - "8023:8000"
         volumes:
