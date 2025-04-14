@@ -6,10 +6,11 @@ from rest_framework import status
 # from domain.apps.identity.models import User, UserBan
 from infrastructure.commands.base import BaseCommand
 from infrastructure.handlers.identity.user import UserHandler
-# from infrastructure.exceptions.exceptions import UserBanException, ValidationException
+from infrastructure.exceptions.exceptions import ValidationException
 from infrastructure.services.token import TokenService
 from infrastructure.services.mail import MailService
 from domain.apps.identity.models import OTP, User
+from application.enums.services.enum import EmailTemplates
 
 
 class UserCommand(BaseCommand):
@@ -138,11 +139,16 @@ class UserCommand(BaseCommand):
     def generate_otp(self, data):
 
         validated_data = self.validate(data)
+        email = validated_data.get("email")
+        template = validated_data.get("template")
+
+        if template == EmailTemplates.OTPRegister and User.objects.filter(email=email).exists():
+            raise ValidationException(message="User already registered, please sign in")
 
         mail_service = MailService()
 
-        otp, created = OTP.objects.get_or_create(email=validated_data.get("email"))
-        mail_service.send_otp_email(to=validated_data.get("email"), otp=otp.code)
+        otp, created = OTP.objects.get_or_create(email=email)
+        mail_service.send_otp_email(to=email, otp=otp.code)
         return Response(data={"data": {"status": "sent"}}, status=status.HTTP_200_OK)
 
     def verify_OTP(self, data):
