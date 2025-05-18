@@ -1,245 +1,149 @@
-<h1 align="center">Django DRF Clean Architecture</h1>
-<h3 align="center">Just a big starting point for any backend project</h3>
+# RadiGenius - AI-Powered Chat Interface
+
 <p align="center">
 <a href="https://www.python.org" target="_blank"> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/python/python-original.svg" alt="python" width="40" height="40"/> </a>
 <a href="https://www.djangoproject.com/" target="_blank"> <img src="https://user-images.githubusercontent.com/29748439/177030588-a1916efd-384b-439a-9b30-24dd24dd48b6.png" alt="django" width="60" height="40"/> </a> 
+<a href="https://fastapi.tiangolo.com/" target="_blank"> <img src="https://fastapi.tiangolo.com/img/logo-margin/logo-teal.png" alt="fastapi" height="40"/> </a>
 <a href="https://www.docker.com/" target="_blank"> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/docker/docker-original-wordmark.svg" alt="docker" width="40" height="40"/> </a>
 <a href="https://www.postgresql.org" target="_blank"> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/postgresql/postgresql-original-wordmark.svg" alt="postgresql" width="40" height="40"/> </a>
 <a href="https://www.nginx.com" target="_blank"> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/nginx/nginx-original.svg" alt="nginx" width="40" height="40"/> </a>
-<a href="https://git-scm.com/" target="_blank"> <img src="https://www.vectorlogo.zone/logos/git-scm/git-scm-icon.svg" alt="git" width="40" height="40"/> </a>
 </p>
 
 [![Code Style Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
 
-# Guideline
+## Project Overview
 
-- [Goal](#goal)
-- [Repo Features](#repo-features)
-- [Before Setup](#before-setup)
-- [Development usage](#development-usage)
-- [Production usage](#production-usage)
+RadiGenius is a chat interface application that connects users to an AI model through a Django backend and a FastAPI inference service. The system is designed with clean architecture principles to ensure maintainability, scalability, and separation of concerns.
+
+## Table of Contents
+
+- [Project Structure](#project-structure)
+- [Environment Configuration](#environment-configuration)
+- [Setup and Installation](#setup-and-installation)
+  - [Development Setup](#development-setup)
+  - [Production Setup](#production-setup)
+- [API Documentation](#api-documentation)
+- [Security](#security)
+- [Contributing](#contributing)
 - [License](#license)
-- [Reources](#resources)
-- [Special Thanks To](#special-thanks-to)
-- [Bugs](#bugs)
 
-# Goal
+## Project Structure
 
-This project main goal is to provide an enreach starting point for mid-level to large scale projects.
+The project consists of two main components:
 
-# Repo Features
+### 1. RadiGenius Backend (Django)
+- Django-based REST API with DRF
+- Handles user authentication, conversation management, and business logic
+- Communicates with the Inference API for AI model responses
+- Follows clean architecture principles with layers:
+  - Domain (entities, use cases)
+  - Infrastructure (settings, database)
+  - Interface adapters (controllers, presenters)
+  - Frameworks & drivers (web, UI)
 
-<ul>
-  <li>
-    <strong>Latest LTS Django4.2</strong>        
-    <p>Latest LTS included 4.2.x and needed requirements</p>
-  </li>
+### 2. RadiGenius Inference API (FastAPI)
+- FastAPI service for AI model inference
+- Handles chat completions and other inference-related operations
+- Optimized for performance with async operations
+- Exposed endpoints for the backend to consume
 
-  <li>
-    <strong>Git</strong>        
-    <p>python gitignore and README with license</p>
-  </li>
+## Environment Configuration
 
-  <li>
-    <strong>Docker File</strong>        
-    <p>Latest Python image dockerfile prod/dev and dockerignore</p>
-  </li>
-  
-  <li>
-    <strong>Docker Compose</strong>        
-    <p>Docker compose prod/dev and minimum setup for django and db included,with volumes and network</p>
-  </li>
-  
-  <li>
-    <strong>Nginx + Gunicorn</strong>        
-    <p>included nginx setup with gunicorn as serving service and file configs for production</p>
-  </li>
- 
-  <li>
-    <strong>Django env</strong>        
-    <p>enviroment sample file and setup</p>
-  </li>
- 
-  <li>
-    <strong>Github Actions</strong>
-    <p>Pre Configurations for CI/CD in github actions. plus two step jobs for testing and deploying on vps with docker</p>
-  </li>
+The project uses environment variables for configuration. Key variables include:
 
-  <li>
-    <strong>Black and Flake8</strong>
-    <p>Included Pep8 and Flake8 configuration file for test purposes.Reformating the codes and bring the best out of it.</p>
-  </li>
+### Backend Environment (.env)
 
-  <li>
-    <strong>Django Rest Framework</strong>
-    <p>Included DRF package and all its dependencies along side of cors headers. plus simplejwt and jwt authentication for identity.</p>
-  </li>
+```
+# General
+SECRET_KEY=           # Django secret key
+DEBUG=False           # Enable/disable debug mode
+ALLOWED_HOSTS=        # Comma-separated list of allowed hosts
+APP_NAME=radigenius   # Application name
+CDN_URL=              # CDN URL for static files
+INFERENCE_SERVICE_URL= # URL to the FastAPI inference service
 
-  <li>
-    <strong>Swagger and Redoc</strong>
-    <p>Allowing the urls to include rest api documentations</p>
-  </li>
+# Database
+DB_ENGINE=django.db.backends.postgresql
+DB_NAME=              # Database name
+DB_USER=              # Database user
+DB_PASS=              # Database password
+DB_HOST=              # Database host
+DB_PORT=              # Database port
 
-  <li>
-    <strong>Locust</strong>
-    <p>locust for api load testing</p>
-  </li>
+# Logs and monitoring
+SEQ_LOG_LEVEL=INFO
+SENTRY_DSN=           # Sentry DSN for error tracking
 
-  <li>
-    <strong>Seq</strong>
-    <p> Seq logging for log monitoring</p>
-  </li>
-
-  <li>
-    <strong>Attrs</strong>
-    <p>Attrs for Dto</p>
-  </li>
-
-  <li>
-    <strong>Poetry</strong>
-    <p>Poetry for better dependency management</p>
-  </li>
-
-  <li>
-    <strong>Tests</strong>
-    <p>django-pytest and pytest-cov and factoryboy for test and test coverage</p>
-  </li>
-
-  <li>
-    <strong>Redis</strong>
-    <p>Redis and beat for schedules and cache</p>
-  </li>
-
-  <li>
-    <strong>Integrated Response & Exceptions
-    <p>integrated response and exceptions for REST</p>
-  </li>
-
-  <li>
-    <strong>Djoser</strong>
-    <p>Preconfigured Djoser for authentication</p>
-  </li>
-
-  <li>
-    <strong>Honeypot</strong>
-    <p>Honeypot admin panel to ban anyone tries to brute force into /admin</p>
-  </li>
-
-  <li>
-    <strong>Preconfigured</strong>        
-    <p>Preconfigured settings and etc...</p>
-  </li>
-
-  <li>
-    <strong>README</strong>
-    <p>README.md files in all layers for more information</p>
-  </li>
-</ul>
-
-# Before Setup
-
-<strong>Note:</strong> I Highly recommend checking [Resources](#resources) section.
-
-<ul>
-  <li>
-    <strong>Read layers README.md</strong>
-    <p>Every layer has it's own README.md for furture explanation</p>
-  </li>
-  <li>
-       <strong>Change env variables in /envs to suite your project needs</strong>
-        <p>/envs directory contains environment variables for database and django</p>
-  </li>
-    <li>
-       <strong>Review settings in /src/infrastructure/settings</strong>
-  </li>
-</ul>
-
-# Development usage
-
-You'll need to have [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/) installed.
-It's available on Windows, macOS and most distros of Linux.
-
-If you're using Windows, it will be expected that you're following along inside
-of [WSL or WSL
-2](https://nickjanetakis.com/blog/a-linux-dev-environment-on-windows-with-wsl-2-docker-desktop-and-more).
-
-That's because we're going to be running shell commands. You can always modify
-these commands for PowerShell if you want.
-
-#### Clone this repo anywhere you want and move into the directory:
-
-```sh
-git clone https://github.com/alireza0sfr/Django-DRF-Clean-Architecture-Base.git
+# Email
+EMAIL_HOST=           # SMTP host
+EMAIL_PORT=           # SMTP port
 ```
 
-#### Build everything:
+See the complete list of environment variables in the `.env.sample` files in the repository.
 
-_The first time you run this it's going to take 5-10 minutes depending on your
-internet connection speed and computer's hardware specs. That's because it's
-going to download a few Docker images and build the Python + requirements dependencies._
+## Setup and Installation
 
-```sh
+### Prerequisites
+
+- Docker and Docker Compose
+- Git
+
+### Development Setup
+
+1. Clone the repository:
+```bash
+git clone https://github.com/your-username/radigenius.git
+cd radigenius
+```
+
+2. Copy sample env files:
+```bash
+cp radigenius-backend/envs/dev/backend/.env.sample radigenius-backend/envs/dev/backend/.env
+cp radigenius-inference-api/envs/dev/.env.sample radigenius-inference-api/envs/dev/.env
+```
+
+3. Update environment variables in the .env files
+
+4. Build and run the development environment:
+```bash
 docker-compose -f docker/docker-compose.yml up --build
 ```
 
-Now that everything is built and running we can treat it like any other Django
-app.
+5. Access the application at http://localhost:8000
 
-#### Note:
+### Production Setup
 
-If you receive an error about a port being in use? Chances are it's because
-something on your machine is already running on the same port as one of the services in docker-compose. then you have to change the docker-compose.yml file according to your needs.
-
-#### Check it out in a browser:
-
-Visit <http://localhost:port> in your favorite browser.
-
-# Stage usage
-
-In this phase of the project you can launch the service either in your pc/laptop to use as local host or you can setup on a vps to access through ip or even the domain which is dedicated to it.
-
+1. Set up production environment:
 ```bash
-docker-compose -f docker-compose-stage.yml up --build
+cp radigenius-backend/envs/prod/backend/.env.sample radigenius-backend/envs/prod/backend/.env
+cp radigenius-inference-api/envs/prod/.env.sample radigenius-inference-api/envs/prod/.env
 ```
 
-# Production usage
+2. Update environment variables with production values
 
-In this phase of the project you can launch the project only on the vps with the domain name connect to it other than that you have to change the settings accordingly.(you can use the stage config as base for the nginx)
-But before that don't forget to check nginx config located at /nginx/default.conf the db.
-then all you need to do to build the project is to run the command bellow:
-
+3. Build and run with production settings:
 ```bash
 docker-compose -f docker-compose-prod.yml up --build
 ```
 
-# Security
+## API Documentation
 
-With special thanks to [Mr.Ali Bigdeli](https://github.com/AliBigdeli) this repo uses his security configs for more info read [this](https://github.com/AliBigdeli/Ultimate-Django4.2-Template/blob/main/README.md#security).
+- Backend API documentation is available at `/api/docs/` once the server is running
+- Inference API documentation is available at `/docs` on the inference service
 
-- Mozilla Observatory
-  <img src="https://user-images.githubusercontent.com/29748439/187753171-c600c12d-1979-44e7-ad32-65243e777c77.png" alt="security headers" style="max-width:1280px;width:100%" />
+## Security
 
-- Security Headers
-  <img src="https://user-images.githubusercontent.com/29748439/187752756-8368f1dc-e4c2-4256-ab8a-9c7d2a44da00.png" alt="security headers" style="max-width:1280px;width:100%" />
+The project implements several security best practices:
+- JWT authentication
+- HTTPS enforcement in production
+- Admin panel protection with rate limiting and honeypot
+- Proper CORS configuration
+- Security headers implementation
 
-- SSL Checker
-  <img src="https://user-images.githubusercontent.com/29748439/187753336-dd575268-f2be-49b9-9934-21928017d518.png" alt="security headers" style="max-width:200px;width:100%; max-height:400px;text-align:center" />
+## Contributing
 
-# License
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-MIT.
+## License
 
-# Resources
-
-<strong>Clean Architecture: <https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html></strong>
-
-# Special Thanks to
-  This repository is heavily inspired by [Django Clean Architecture](https://github.com/sdediego/django-clean-architecture) and [Ultimate Django4.2 Template](https://github.com/AliBigdeli/Ultimate-Django4.2-Template)
-  repositories.
-
-- [Ali Bigdeli](https://github.com/AliBigdeli)
-- [Sergio de Diego](https://github.com/sdediego)
-
-# Bugs
-
-Feel free to let me know if something needs to be fixed. or even any features seems to be needed in this repo.
+MIT
