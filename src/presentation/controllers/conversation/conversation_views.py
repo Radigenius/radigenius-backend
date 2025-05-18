@@ -32,7 +32,7 @@ class ConversationGenericViewSet(CustomGenericViewSet):
             self.output_serializer_class = MessageModelSerializer
 
     def get_permissions(self):
-        if self.action == "get_list_for_current_user":
+        if self.action in ["get_list_for_current_user", "retrieve"]:
             self.permission_classes = [CurrentUserOrAdmin]
         if self.action == "list":
             self.permission_classes = [IsAdminUser]

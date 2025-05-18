@@ -39,8 +39,8 @@ class UserCommand(BaseCommand):
         
         OTP.objects.verify(email=email, code=otp)
 
+        validated_data["is_verified"] = True
         user = handler.create(validated_data)
-        User.objects.filter(id=user.id).update(is_verified=True)
 
         token_service = TokenService()
         token = token_service.generate(user=user)

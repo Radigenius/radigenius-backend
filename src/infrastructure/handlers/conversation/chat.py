@@ -48,7 +48,7 @@ class ChatHandler(BaseHandler):
     def send_message(self, chat_id, message):
 
         with transaction.atomic():
-            chat = self.model.objects.get_or_not_found_exception(id=chat_id)
+            chat = self.model.objects.get_or_not_found_exception(id=chat_id, user_id=self.request.user.id)
             message_handler = MessageHandler(self.view, self.request)        
             message_entity = message_handler.create({**message, "chat": chat})
 
